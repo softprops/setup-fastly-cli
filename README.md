@@ -4,9 +4,9 @@
 
 ## usage
 
-Create a [Fastly API token](https://manage.fastly.com/account/personal/tokens) and store it in your GitHub repository's actions secrets.
+Create a [Fastly API token](https://manage.fastly.com/account/personal/tokens). These tokens are not meant to be shared. Keep them secret by storing them in your GitHub repository's [actions secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets).
 
-Then add a step to your workflow to install and configure the Fastly CLI
+Add a step to your workflow to install and configure the Fastly CLI
 
 ```yml
 jobs:
