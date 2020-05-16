@@ -34,7 +34,7 @@ jobs:
 
 | Name        | Type    | Description                                                     |
 |-------------|---------|-----------------------------------------------------------------|
-| `fastly-api-token`   | string  | personal [Fastly API token](https://manage.fastly.com/account/personal/tokens)                          |
+| `FASTLY_API_TOKEN`   | string  | personal [Fastly API token](https://manage.fastly.com/account/personal/tokens)                          |
 
 
 Doug Tangren (softprops) 2020
