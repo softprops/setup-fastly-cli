@@ -1,0 +1,88 @@
+import { setFailed, info, debug, addPath, getInput } from "@actions/core";
+import * as exec from "@actions/exec";
+import * as tc from "@actions/tool-cache";
+import * as http from "@actions/http-client";
+import * as os from "os";
+
+const TOOL = "fastly-cli";
+
+export async function install(version: string, osPlat: string) {
+  console.log(`version ${version}`);
+  let toolPath = tc.find(TOOL, version);
+
+  if (!toolPath) {
+    toolPath = await download(version, osPlat);
+    debug(`Fastly cli cached under ${toolPath}`);
+  }
+
+  addPath(toolPath);
+}
+
+export function downloadUrl(version: string, osPlat: string): string {
+  return `https://github.com/fastly/cli/releases/download/${version}/${fileName(
+    version,
+    osPlat
+  )}`;
+}
+
+async function download(version: string, osPlat: string): Promise<string> {
+  const url = downloadUrl(version, osPlat);
+  const downloadPath = await tc.downloadTool(url);
+  const extPath =
+    osPlat == "win32"
+      ? tc.extractZip(downloadPath)
+      : tc.extractTar(downloadPath);
+
+  console.log(`Downloading and extracting ${url}`);
+  return await tc.cacheDir(await extPath, TOOL, version);
+}
+
+export function fileName(version: string, osPlat: string): string {
+  let platform = "";
+  let ext = "";
+  switch (osPlat) {
+    case "win32":
+      platform = "windows";
+      ext = "zip";
+      break;
+    case "linux":
+      platform = "linux";
+      ext = "tar.gz";
+      break;
+    case "darwin":
+      platform = "darwin";
+      ext = "tar.gz";
+      break;
+  }
+
+  return `fastly_${version}_${platform}-amd64.${ext}`;
+}
+
+async function run() {
+  try {
+    const version = getInput("version") || (await latestVersion());
+    if (!version) {
+      throw new Error("Failed to resolve latest version");
+    }
+    const fastlyToken = process.env.FASTLY_API_TOKEN;
+    if (!fastlyToken) {
+      throw new Error("Please provide an FASTLY_API_TOKEN env variable");
+    }
+
+    await install(version, os.platform());
+    await exec.exec("fastly", ["configure", "--token", fastlyToken]);
+  } catch (error) {
+    setFailed(error.message);
+  }
+}
+
+async function latestVersion(): Promise<string | undefined> {
+  const url = `https://api.github.com/repos/fastly/cli/releases/latest`;
+  const client = new http.HttpClient("setup-fastly-cli");
+  const resp = (await client.getJson<{ tag_name: string }>(url)).result;
+  return resp?.tag_name;
+}
+
+if (require.main === module) {
+  run();
+}

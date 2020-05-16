@@ -1,0 +1,15 @@
+# https://help.github.com/en/articles/metadata-syntax-for-github-actions
+name: 'Setup Fastly CLI'
+description: 'A GitHub Action for setting up and configuring the Fastly command line interface'
+author: 'softprops'
+env:
+  'FASTLY_API_TOKEN': 'Fastly API token'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+inputs:
+  version:
+    description: "Version of cli (defaults to latest version)"
+branding:
+  color: 'red'
+  icon: 'clock'
