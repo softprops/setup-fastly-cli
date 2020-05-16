@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Setup Fastly CLI
         uses: ./ # Uses an action in the root directory
-        #env:
-        #  FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
+        env:
+          FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
       - name: Enjoy
         run: fastly whoami
