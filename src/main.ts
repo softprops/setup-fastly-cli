@@ -1,4 +1,4 @@
-import { setFailed, info, debug, addPath, getInput } from "@actions/core";
+import { setFailed, info, addPath, getInput } from "@actions/core";
 import * as exec from "@actions/exec";
 import * as tc from "@actions/tool-cache";
 import * as http from "@actions/http-client";
@@ -7,13 +7,7 @@ import * as os from "os";
 const TOOL = "fastly-cli";
 
 export async function install(version: string, osPlat: string) {
-  console.log(`version ${version}`);
-  let toolPath = tc.find(TOOL, version);
-
-  if (!toolPath) {
-    toolPath = await download(version, osPlat);
-    debug(`Fastly cli cached under ${toolPath}`);
-  }
+  const toolPath = tc.find(TOOL, version) || (await download(version, osPlat));
 
   addPath(toolPath);
 }
@@ -33,27 +27,13 @@ async function download(version: string, osPlat: string): Promise<string> {
       ? tc.extractZip(downloadPath)
       : tc.extractTar(downloadPath);
 
-  console.log(`Downloading and extracting ${url}`);
+  info(`Downloading and extracting ${url}`);
   return await tc.cacheDir(await extPath, TOOL, version);
 }
 
 export function fileName(version: string, osPlat: string): string {
-  let platform = "";
-  let ext = "";
-  switch (osPlat) {
-    case "win32":
-      platform = "windows";
-      ext = "zip";
-      break;
-    case "linux":
-      platform = "linux";
-      ext = "tar.gz";
-      break;
-    case "darwin":
-      platform = "darwin";
-      ext = "tar.gz";
-      break;
-  }
+  const platform = osPlat === "win32" ? "windows" : osPlat;
+  const ext = osPlat === "win32" ? "zip" : "tar.gz";
 
   return `fastly_${version}_${platform}-amd64.${ext}`;
 }
