@@ -50,9 +50,13 @@ async function run() {
     }
 
     await install(version, os.platform());
-    await exec.exec("fastly", ["configure", "--token", fastlyToken]);
+
+    const doConfigure = process.env.SKIP_CONFIGURE == undefined;
+    if (doConfigure) {
+      await exec.exec("fastly", ["configure", "--token", fastlyToken]);
+    }
   } catch (error) {
-    setFailed(error.message);
+    setFailed((error as Error).message);
   }
 }
 
