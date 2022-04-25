@@ -12,13 +12,13 @@ Add a step to your workflow to install and configure the Fastly CLI
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Setup Fastly CLI
       uses: softprops/setup-fastly-cli@v1
-      env:
-        FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
     - name: Enjoy
       run: fastly whoami
 ```

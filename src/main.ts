@@ -3,6 +3,7 @@ import * as exec from "@actions/exec";
 import * as tc from "@actions/tool-cache";
 import * as http from "@actions/http-client";
 import * as os from "os";
+import * as semver from "semver";
 
 const TOOL = "fastly-cli";
 
@@ -48,11 +49,20 @@ async function run() {
     if (!fastlyToken) {
       throw new Error("Please provide an FASTLY_API_TOKEN env variable");
     }
-
+    const command = getCommandByVersion(version);
     await install(version, os.platform());
-    await exec.exec("fastly", ["configure", "--token", fastlyToken]);
+    await exec.exec("fastly", [command, "--token", fastlyToken]);
   } catch (error) {
     setFailed(error.message);
+  }
+}
+
+// Return config if version is greater than or equal version 2.0.0 else return configuration
+function getCommandByVersion(version: string): string {
+  if (semver.gte(version, "2.0.0")) {
+    return "config";
+  } else {
+    return "configure";
   }
 }
 
