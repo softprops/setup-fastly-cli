@@ -17,8 +17,39 @@ jobs:
         run: npm run test
       - name: Format
         run: npm run fmtcheck
-  integration:
+
+  integration_1_x_x:
     runs-on: ubuntu-latest
+    env:
+      FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Fastly CLI
+        uses: ./ # Uses an action in the root directory
+        with:
+          version: "v1.7.1"
+      - name: Enjoy
+        run: fastly whoami
+
+  integration_2_x_x:
+    runs-on: ubuntu-latest
+    env: 
+      FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Fastly CLI
+        uses: ./ # Uses an action in the root directory
+        with:
+          version: "v2.0.0"
+      - name: Enjoy
+        run: fastly whoami
+
+  integration_latest:
+    runs-on: ubuntu-latest
+    env: 
+      FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
