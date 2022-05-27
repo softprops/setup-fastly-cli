@@ -44,15 +44,20 @@ async function run() {
     if (!version) {
       throw new Error("Failed to resolve latest version");
     }
-    const fastlyToken = process.env.FASTLY_API_TOKEN;
-    if (!fastlyToken) {
-      throw new Error("Please provide an FASTLY_API_TOKEN env variable");
-    }
 
     await install(version, os.platform());
-    await exec.exec("fastly", ["configure", "--token", fastlyToken]);
+
+    const doConfigure = process.env.SKIP_CONFIGURE == undefined;
+    if (doConfigure) {
+      const fastlyToken = `${process.env.FASTLY_API_TOKEN}`;
+      if (fastlyToken == "") {
+        throw new Error("Expected FASTLY_API_TOKEN to not be empty");
+      }
+
+      await exec.exec("fastly", ["configure", "--token", fastlyToken]);
+    }
   } catch (error) {
-    setFailed(error.message);
+    setFailed((error as Error).message);
   }
 }
 
